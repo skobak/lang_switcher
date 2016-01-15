@@ -12,7 +12,7 @@
  *
  */
 (function () {
-    var language, language_needed, lanuage_actual;
+    var language, language_needed, lanuage_actual,params;
 
     var getCookie = function (name) {
         var matches = document.cookie.match(new RegExp(
@@ -27,33 +27,11 @@
         var ru_speakers_iso_codes = ['RU', 'UK', 'BE', 'HY', 'AZ', 'ET', 'KA','LV', 'LT', 'TK', 'TG','UZ'];
 
 
-        setCookie = function (name, value, options) {
-            options = options || {};
-
-            var expires = options.expires;
-
-            if (typeof expires == "number" && expires) {
-                var d = new Date();
-                d.setTime(d.getTime() + expires * 1000);
-                expires = options.expires = d;
-            }
-            if (expires && expires.toUTCString) {
-                options.expires = expires.toUTCString();
-            }
-
-            value = encodeURIComponent(value);
-
-            var updatedCookie = name + "=" + value;
-
-            for (var propName in options) {
-                updatedCookie += "; " + propName;
-                var propValue = options[propName];
-                if (propValue !== true) {
-                    updatedCookie += "=" + propValue;
-                }
-            }
-
-            document.cookie = updatedCookie;
+        setCookie = function(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays.expires*24*60*60*1000));
+            var expires = "expires="+d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";domain=."+window.location.host+";path=/;" + expires;
         }
 
 
@@ -71,8 +49,9 @@
 
         language = navigator.language || navigator.browserLanguage;
         language_needed = getActualLanguage(language.toUpperCase());
-        lanuage_actual = window.location.pathname.split('/')[1]; //return first word after host url, e.g.: sitename.com/ru - return ru
-        if (language_needed != lanuage_actual) {
+        params =  window.location.pathname.split('/'); //return first word after host url, e.g.: sitename.com/ru - return ru
+        lanuage_actual = params[1];
+        if (params.length<=3 && language_needed != lanuage_actual && (lanuage_actual == 'ru' || lanuage_actual==undefined)) {
             if (language_needed == 'en') {
                 setCookie('langDetected', 'en', {
                     expires: 100
